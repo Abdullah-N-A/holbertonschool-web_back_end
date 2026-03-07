@@ -1,0 +1,2 @@
+// insert document 
+dv.school.insertOne({name: "Holberton school"])
