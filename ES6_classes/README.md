@@ -1,2 +1,3 @@
+# ES6 Classes
 
-###ES6 classes
+JavaScript ES6 class syntax: defining classes, getters/setters, static methods, inheritance, and metaprogramming with Symbols.
