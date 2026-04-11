@@ -1,24 +1,16 @@
 const express = require('express');
-const countStudents = require('./3-read_file_async');
+const fs = require('fs');
 
-const app = express();
+function countStudents(path) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(path, 'utf8', (err, data) => {
+      if (err) {
+        reject(new Error('Cannot load the database'));
+        return;
+      }
 
-app.get('/', (req, res) => {
-  res.send('Hello Holberton School!');
-});
-
-app.get('/students', (req, res) => {
-  const dbPath = process.argv[2];
-  const fs = require('fs');
-
-  let output = 'This is the list of our students\n';
-
-  countStudents(dbPath)
-    .then(() => {
-      const lines = fs.readFileSync(dbPath, 'utf8')
-        .split('\n').filter((line) => line.trim() !== '').slice(1);
-
-      output += `Number of students: ${lines.length}\n`;
+      const lines = data.split('\n').filter((line) => line.trim() !== '').slice(1);
+      let output = `Number of students: ${lines.length}\n`;
 
       const fields = {};
       lines.forEach((line) => {
@@ -33,10 +25,26 @@ app.get('/students', (req, res) => {
         output += `Number of students in ${field}: ${fields[field].length}. List: ${fields[field].join(', ')}\n`;
       });
 
-      res.send(output);
+      resolve(output.trim());
+    });
+  });
+}
+
+const app = express();
+
+app.get('/', (req, res) => {
+  res.send('Hello Holberton School!');
+});
+
+app.get('/students', (req, res) => {
+  const dbPath = process.argv[2];
+
+  countStudents(dbPath)
+    .then((output) => {
+      res.send(`This is the list of our students\n${output}`);
     })
     .catch((err) => {
-      res.send(err.message);
+      res.send(`This is the list of our students\n${err.message}`);
     });
 });
 
